@@ -1,51 +1,54 @@
-#include <pthread.h>
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
 #include <stdio.h>
+#include <pthread.h>
 
-int sum; /* this data is shared by the thread(s) */
+int sum;
+void *runner(void *param);
 
-void *runner(void *param); /* the thread */
 
 int main(int argc, char *argv[])
 {
-	pthread_t tid; /* the thread identifier */
-	pthread_attr_t attr; /* set of attributes for the thread */
+    printf("My first threaded applitcation");
+    pthread_t tid; //thread id
+    pthread_attr_t attr; // set of threads attributes 
+    
+    if (argc != 2) {
+        fprintf(stderr,"usage: a.out < integer value >\n");
+        return -1;
+    }
+    if (atoi(argv[1] < 0)){
+        fprintf(stderr, "%d must be >= 9\n", atoi(argv[1]));
+        return -1;
+    }
+    //get the default attributes
+    pthread_attr_init(&attr);
+    /*creates thread*/
+    pthread_create(&tid, &attr, runner, argv[1]);
+    //waits for the thread to exit 
+    pthread_join(tid, NULL);
+    
+    
+    printf("sum is: %d \n", sum);
+    
+    return 0;
+}
 
-	if (argc != 2) {
-		fprintf(stderr,"usage: a.out <integer value>\n");
-		/*exit(1);*/
-		return -1;
-	}
-
-	if (atoi(argv[1]) < 0) {
-		fprintf(stderr,"Argument %d must be non-negative\n",atoi(argv[1]));
-		/*exit(1);*/
-		return -1;
-	}
-
-	/* get the default attributes */
-	pthread_attr_init(&attr);
-
-	/* create the thread */
-	pthread_create(&tid,&attr,runner,argv[1]);
-
-	/* now wait for the thread to exit */
-	pthread_join(tid,NULL);
-
-	printf("sum = %d\n",sum);
-	}
-
-	/**
-	 * The thread will begin control in this function
-	 */
-	void *runner(void *param)
-	{
-	int i, upper = atoi(param);
-	sum = 0;
-
-		if (upper > 0) {
-			for (i = 1; i <= upper; i++)
-				sum += i;
-		}
-
-		pthread_exit(0);
+void *runner(void *param) {
+    //arithmetic operations
+    
+    int i, upper = atoi(param);
+    sum = 0;
+    
+    for( i = 1; i <= upper; i++) {
+        sum += i;
+    }
+    
+    pthread_exit(0);
 }
