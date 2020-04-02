@@ -1,4 +1,4 @@
-
+sem_t
 /******************************************************************************
 This programme uses a multithreaded proccess in which a "producer"
 thread writes into a share memory and a "consumer" thread reads the
@@ -16,21 +16,22 @@ This assignment was done by Ethan Kennedy and Alejandro Ferrer
 //./prodcon <memsize> <ntimes>
 //memzise determines the size and number of blocls of shared memory in the region
 //ntimes  indicaes the number of times the producer wirtes to and the consumer reads from the shared memory region
-semaphore mutex = 1;
-semaphore empty;
-semaphore full = 0;
+sem_t mutex = 1;
+sem_t empty = n;
+sem_t full = 0;
 int memsize;
 int ntimes;
 //MAIN
 int main(int argc, char *argv[])
 {
   // 3 comand line arguments as input
-  //initalize the mutex semaphore
+  //initalize the mutex sem_t
   //initalize the counting semaphore
-  semaphore empty = ;
+  sem_t empty = n;
 
   void *producer(void *param);
   void *consumer(void *param);
+
 
 
 /* comand line input  here
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
   ntimes =
 */
 
-  int sharedMem* [memsize]; // shared memory
+  int *sharedMem[memsize]; // shared memory
 
   //int ntimes = ;//command line input
   //initalize the semaphores
