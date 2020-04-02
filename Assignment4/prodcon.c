@@ -1,5 +1,5 @@
-/******************************************************************************
 
+/******************************************************************************
 This programme uses a multithreaded proccess in which a "producer"
 thread writes into a share memory and a "consumer" thread reads the
 shared memory as many times as the user input.
@@ -10,84 +10,109 @@ This assignment was done by Ethan Kennedy and Alejandro Ferrer
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <math.h>
-#include <unistd.h>
-#include <semaphore.h>
-#include <string.h>
 
-
-semaphore rw_mutex = 1;
+//./prodcon <memsize> <ntimes>
+//memzise determines the size and number of blocls of shared memory in the region
+//ntimes  indicaes the number of times the producer wirtes to and the consumer reads from the shared memory region
 semaphore mutex = 1;
-int read_count = 0;
+semaphore empty;
+semaphore full = 0;
+int memsize;
+int ntimes;
+//MAIN
+int main(int argc, char *argv[])
+{
+  // 3 comand line arguments as input
+  //initalize the mutex semaphore
+  //initalize the counting semaphore
+  semaphore empty = ;
 
-void *thread_function(void *argv);
-pthread_mutex_t work_mutex;
+  void *producer(void *param);
+  void *consumer(void *param);
 
 
-#DEFINE WORK_SIZE 1024
-char work_area[WORK_SIZE];
-int time_to_exit = 0;
+/* comand line input  here
+  memsize =
+  ntimes =
+*/
 
-int main() {
-  int res;
-  pthread_t a_thread;
-  void *thread_result;
-  res = pthread_mutex_init(&work_mutex, NULL);
-  if (res != 0) {
-      perror("Mutex initialization failed");
-      exit(EXIT_FAILURE);
-  }
-  res = pthread_create(&a_thread, NULL, thread_function, NULL);
-  if (res != 0) {
-      perror("Thread creation failed");
-      exit(EXIT_FAILURE);
-  }
-  pthread_mutex_lock(&work_mutex);
-  printf("Input some text. Enter 'end' to finish\n");
-  while(!time_to_exit) {
-      fgets(work_area, WORK_SIZE, stdin);
-      pthread_mutex_unlock(&work_mutex);
-      while(1) {
-          pthread_mutex_lock(&work_mutex);
-          if (work_area[0] != '\0') {
-              pthread_mutex_unlock(&work_mutex);
-              sleep(1);
-          }
-          else {
-              break;
-          }
-      }
+  int sharedMem* [memsize]; // shared memory
+
+  //int ntimes = ;//command line input
+  //initalize the semaphores
+  int res = sem_init(&full, 0, 0);
+    if (res < 0)
+    {
+        perror("Semaphore initialization failed");
+        exit(0);
     }
-    pthread_mutex_unlock(&work_mutex);
-    printf("\nWaiting for thread to finish...\n");
-    res = pthread_join(a_thread, &thread_result);
-    if (res != 0) {
-        perror("Thread join failed");
-        exit(EXIT_FAILURE);
+    if (sem_init(&empty, 0, 1)) /* initially unlocked */
+    {
+        perror("Semaphore initialization failed");
+        exit(0);
     }
-    printf("Thread joined\n");
-    pthread_mutex_destroy(&work_mutex);
-    exit(EXIT_SUCCESS);
+
+  //create producer thread
+  //creat consumer thread
+
+  //wait for both threads to finish
+  for(int i = 0; i < ntimes; i++)
+  {
+    //call PRODUCER
+    //call consumer
+
+  }
+}
+
+// PRODUCER thread
+void *producer(void *param)
+{
+  wait(empty);
+  wait(mutex);
+
+  int checksum = 0;
+  srand(time(0));
+  for(int j = 0; j < memsize - 1; j++)  //create 30 bytes of random data (0-255)
+  {
+    sharedMem[j] = rand();
+  }
+  for(int k = 0; k < memsize - 1; k++)
+  {
+    checksum += sharedMem[k];
+  }
+  sharedMen[memsize-1] = checksum; // store the checksum in the last 2 bytes of the shared memoy block
+
+  signal(mutex);
+  signal(full);
+  pthread_exit(0);
+  //repeat ntimes synchronizing with the consumer
 }
 
 
-void *thread_function(void *arg) {
-    sleep(1);
-    pthread_mutex_lock(&work_mutex);
-    while(strncmp("end", work_area, 3) != 0) {
-        printf("You input %d characters\n", strlen(work_area) -1);
-        work_area[0] = '\0';
-        pthread_mutex_unlock(&work_mutex);
-        sleep(1);
-        pthread_mutex_lock(&work_mutex);
-        while (work_area[0] == '\0' ) {
-            pthread_mutex_unlock(&work_mutex);
-            sleep(1);
-            pthread_mutex_lock(&work_mutex);
-        }
-    }
-    time_to_exit = 1;
-    work_area[0] = '\0';
-    pthread_mutex_unlock(&work_mutex);
-    pthread_exit(0);
+
+//CONSUMER thread
+void *consumer(void *param)
+{
+  wait(full);
+  wait(mutex);
+  int checksum = 0;
+  //read the shared memory buffer of 30 bytes
+  //calculate the checksum based on the 30 bytes
+  //compare it to the value in the shared memory buffer to check if data is corrupted
+  for(int j = 0; j < memsize - 1; j++)  //create 30 bytes of random data (0-255)
+  {
+    checksum += sharedMem[j];
+  }
+  if(checksum != sharedMem[memsize])
+  {
+    perror("Data is corrupted");
+    exit(EXIT_FAILURE);
+  }
+
+  signal(mutex);
+  signal(empty);
+  pthread_exit(0);
+  //repeat ntimes synchronizing with the producer
 }
